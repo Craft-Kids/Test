@@ -8,23 +8,6 @@ public class UI_Btn_Manager : MonoBehaviour
     public bool AccelBtnDown = false;
     public bool DecelBtnDown = false;
 
-    void Start()
-    {
-        
-    }
-    void Update()
-    {
-        
-    }
-
-    //public void Accel_Btn()
-    //{
-
-    //}
-    //public void Decel_Btn()
-    //{
-
-    //}
     public void Combo_Btn()
     {
         Debug.Log("콤보");

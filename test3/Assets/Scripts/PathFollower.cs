@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using System;
 
 namespace PathCreation.Examples
 {
@@ -6,107 +9,43 @@ namespace PathCreation.Examples
     // Depending on the end of path instruction, will either loop, reverse, or stop at the end of the path.
     public class PathFollower : MonoBehaviour
     {
-        public PathCreator[] track1;
-        public PathCreator[] coner1;
-        public PathCreator[] track2;
-        public PathCreator[] coner2;
-        public PathCreator[] track3;
-        public PathCreator[] coner3;
-        public PathCreator[] track4;
-        public PathCreator[] coner4;
-        public PathCreator[] track5;
-        public PathCreator[] coner5;
-
-        PathCreator[][] path = new PathCreator[10][];    
-
-        //PathCreator[] coner = { };
-        //PathCreator[,] path = new PathCreator[2, 4] {
-        //    { track1 , track2, track3, track4 },
-        // { coner1, coner2, coner3, coner4 }};
-
-      
-        // PathCreator[,] path;    
+        public List<PathCreator[]> list = new List<PathCreator[]>();
 
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
-        public float speed = 0.9f;   // 일단 인라인으로 달리게 설정
+        public float speed;
 
         public int track = 0;
         public int select = 0;
         float distanceTravelled;
-        
+
+
+        //list.sorting
+        void Awake()
+        {
+            Transform player = GameObject.Find("Path").transform;
+
+            for (int i = 0; i < player.childCount; i++)
+            {
+                list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
+            }
+
+            speed = GetComponent<speedControl>().speed; //스피드 함수에서 받아옴
+        }
+
         void Start()
         {
-            //path[0] = new PathCreator[] { track1[0] };
-            //pathCreator = track1[select];
-            //coner = (PathCreator[])coner1.Clone();
             // Subscribed to the pathUpdated event so that we're notified if the path changes during the game
             pathCreator.pathUpdated += OnPathChanged;
         }
 
         void Update()
         {
-            //Debug.Log(track);
-            if (track > 9)
+            if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
-            switch (track)
-            {
-                case 0:
-                    {
-                        pathCreator = track1[select];
-                        break;
-                    }
-                case 1:
-                    {
-                        pathCreator = coner1[select];
-                        break;
-                    }
-                case 2:
-                    {
-                        pathCreator = track2[select];
-                        break;
-                    }
-                case 3:
-                    {
-                        pathCreator = coner2[select];
-                        break;
-                    }
-                case 4:
-                    {
-                        pathCreator = track3[select];
-                        break;
-                    }
-                case 5:  
-                    {
-                        pathCreator = coner3[select];
-                        break;
-                    }
-                case 6:
-                    {
-                        pathCreator = track4[select];
-                        break;
-                    }
-                case 7:
-                    {
-                        pathCreator = coner4[select];
-                        break;
-                    }
-                case 8:
-                    {
-                        pathCreator = track5[select];
-                        break;
-                    }
-                case 9:
-                    {
-                        pathCreator = coner5[select];
-                        break;
-                    }
-                default:
-                    {
-                        pathCreator = coner5[select];
-                        break;
-                    }
-            }
+
+            pathCreator = list[track][select];
+
 
             if (pathCreator != null)
             {
@@ -115,15 +54,52 @@ namespace PathCreation.Examples
                 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction);
             }
 
+
+            //if() //콤보시스템 동작중이지 않을 때 || 코너일때
+            //{
+            //    SpeedCheck();  //코너일 때를 아는 방법은 뭘까
+            //}
+
+
             // 라인변경(일자도로)
-            if (Input.GetKeyDown(KeyCode.RightArrow)) 
+            // 어떻게 하면 부드러운 회전을 할 수 있을까?
+            if (Input.GetKeyDown(KeyCode.RightArrow)) // 오른쪽 라인으로 이동
             {
+                list[track][0].transform.position =
+                    Vector3.Slerp(list[track][0].transform.position, list[track][1].transform.position, 0.1f);
+                // https://hyunity3d.tistory.com/429 보간을 한번 사용해보면...?
+
+           
+                // Rotate 해봤는데 베지어 라인 따라 갈때 회전도 고정이여서 순간적으로 한번 돌고 계속 앞에봄
+                // 위에있는 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction)을 건들여야되겠다
+                //// 
+                //transform.rotation =
+                //    pathcreator.path.getrotationatdistance(distancetravelled,
+                //    (list[track])[1].getcomponent<endofpathinstruction>().endofpathinstruction);
                 select = 1;
+
+
+                //플레이어가 콜라이더에 충돌한 순간, 현재 path의 마지막 빨간 원의 위치와 다음 path의 첫번째 빨간 원의 위치를 받아와서 잇는 방법
+                //rotate적용
+                //이동할때 시간 길게 주기 (= 플레이어 속도 느리게 하기?)
+                //근데 이어주고 로테이트 적용하면 결국 배지어 아님?
+
+                //방법1 -> 그렇다고 라인 이을 순 없으니깐 그냥 저렇게 한다.
+
             }
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) 
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow)) // 왼쪽 라인으로 이동
             {
                 select = 0;
             }
+           
+            //if ()  //같은라인 앞에 다른플레이어가 존재 할 때
+            //{
+            //      //앞의 플레이어를 지나칠 수 없다
+                    //콜라이더로?
+            //}
+
+
         }
 
         void OnPathChanged()
@@ -131,14 +107,17 @@ namespace PathCreation.Examples
             distanceTravelled = pathCreator.path.GetClosestDistanceAlongPath(transform.position);
         }
 
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.tag == "RightEnter")  // 오른쪽으로 코너 진입
             {
                 Debug.Log("Right");
                 distanceTravelled = 0;
-                SpeedCheck();
+                SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
+                              // 그럼 Update에 넣어야하나
                 track++;
+
             }
 
             if (other.gameObject.tag == "LeftEnter")  // 왼쪽으로 코너 진입
@@ -147,36 +126,79 @@ namespace PathCreation.Examples
                 distanceTravelled = 0;
                 SpeedCheck();
                 track++;
+                //Array.Reverse(list[track]);  //왼쪽일때 배열 뒤집기 --> select이동은 어떻게?
+                //--> track안에 요소(select)가 뒤집어진거 아녀?
+
+                //두번째 네번째 바퀴때(짝수바퀴때) reverse 안되는 이유는?
+                //reverse된게 다음바퀴 때도 그대로라서
+                //방법1 -> LeftEnterExit 충돌체크해서 리벌스 되돌린다  Array.Reverse(list[track-1]);
+                //방법2 -> 업데이트 젤 첨에 초기화
+                //방법3 -> reverse 쓰지말고 라인 직접 바꾸기
+
+                //(일단 방법3 해놓음)
+
             }
 
-            if (other.gameObject.tag == "Exit")   // 코너를 통과하면
+            if (other.gameObject.tag == "Exit")   // 코너를 통과하면 가까운 라인으로 이동
             {
                 Debug.Log("Exit");
                 distanceTravelled = 0;
                 track++;
 
-                if (select > 2)   // 트랙이 0, 1, 2, 3, 4 중 2, 3, 4 인 상태이면
-                    select = 1;   // 라인 1 (두번째 라인)로 달리게 설정
-                else
-                    select = 0;
+                //하이라키 창에 직선도로 순서 바꿈
+                if (select < 2)   // 트랙 0, 1, 2, 3, 4 중
+                {
+                    select = 0;   // 인라인
+                }
+                else if (select == 2)
+                {
+                    //가속 중이라면 아웃라인
+                    //감속 중이라면 인라인
+                }
+                else if (select > 2)
+                {
+                    select = 1;  // 아웃라인
+                }
 
-
-                // pathCreator = path[][Point];
             }
         }
+
+        private void OnTriggerStay(Collider other)  //플레이어 반경에 다른 플레이어가 들어오면 슬립스트림 효과 발생
+        {
+            //방법1 삼각형 콜라이더 만들기. 마야로 삼각형 만들어서 메쉬콜라이더 맹들기
+            //방법2 코드로 삼각형 모양 반경 설정
+
+            // -> box 콜라이더로 해둠
+            if (other.gameObject.tag == "OtherPlayer")
+            {
+                Debug.Log("슬립스트림");
+                //현재체력이 지속회복량에 따라 지속회복
+
+
+                if(pathCreator == other.GetComponent<PathFollower>().pathCreator) //경로방해
+                {
+                    //슬립스트립위치이며 같은 라인일때 속도 똑같아지도록 설정하려고함
+                    //다른 플레이어의 pathCreator을 어떻게 불러오면 좋을까??
+                    //지금 해놓은 방법은 null로 뜸
+                    Debug.Log("같은 도로");
+                }
+            }
+        }
+
 
         void SpeedCheck()  // 속도에 따라 라인 변경(오른쪽 코너 기준)
         {
             if (speed < 1.0f)    // 속도가 1.0보다 느리면
-                select = 4;    // 오른쪽(인라인) Coner x-5
+                select = 4;    // 오른쪽(인라인)
             else if (speed < 1.5f)
-                select = 3;    // Path 4
+                select = 3;
             else if (speed < 2.0f)
-                select = 2;    // Path 3
+                select = 2;
             else if (speed < 2.5f)
-                select = 1;    // Path 2
+                select = 1;
             else if (speed < 3.0f)
-                select = 0;    // Path 1
+                select = 0;
         }
+
     }
 }
