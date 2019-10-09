@@ -13,12 +13,13 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
 
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
-        public float speed;
+        float speed;
 
         public int track = 0;
         public int select = 0;
         float distanceTravelled;
 
+        bool conercheck = false;
 
         //list.sorting
         void Awake()
@@ -31,6 +32,7 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
             }
 
             speed = GetComponent<speedControl>().speed;
+
         }
 
         void Start()
@@ -52,15 +54,25 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 transform.position = pathCreator.path.GetPointAtDistance(distanceTravelled + 0.1f, endOfPathInstruction);
                 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction);
             }
-          
-            if (Input.GetKeyDown(KeyCode.D)) // 오른쪽 라인으로 이동
-            {           
-                select = 1;
+
+
+            if (conercheck == true)  // 코너일때, 콤보시스템 동작중이지 않을 때
+            {
+                SpeedCheck();
             }
 
-            if (Input.GetKeyDown(KeyCode.A)) // 왼쪽 라인으로 이동
+
+            if (conercheck == false)  // 직선일 때만 라인변경가능
             {
-                select = 0;
+                if (Input.GetKeyDown(KeyCode.D)) // 오른쪽 라인으로 이동
+                {
+                    select = 1;
+                }
+
+                if (Input.GetKeyDown(KeyCode.A)) // 왼쪽 라인으로 이동
+                {
+                    select = 0;
+                }
             }
 
         }
@@ -75,23 +87,27 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
         {
             if (other.gameObject.tag == "RightEnter")  // 오른쪽으로 코너 진입
             {
+                Debug.Log("Right");
                 distanceTravelled = 0;
                 SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
-                              // 그럼 Update에 넣어야하나
                 track++;
+                conercheck = true;
 
             }
 
             if (other.gameObject.tag == "LeftEnter")  // 왼쪽으로 코너 진입
             {
+                Debug.Log("Left");
                 distanceTravelled = 0;
                 SpeedCheck();
                 track++;
+                conercheck = true;
 
             }
 
             if (other.gameObject.tag == "Exit")   // 코너를 통과하면 가까운 라인으로 이동
             {
+                Debug.Log("Exit");
                 distanceTravelled = 0;
                 track++;
 
@@ -104,11 +120,15 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 {
                     //가속 중이라면 아웃라인
                     //감속 중이라면 인라인
+                    select = 1;  // 아웃라인
+
                 }
                 else if (select > 2)
                 {
                     select = 1;  // 아웃라인
                 }
+
+                conercheck = false;
 
             }
         }

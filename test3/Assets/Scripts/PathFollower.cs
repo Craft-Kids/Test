@@ -13,12 +13,14 @@ namespace PathCreation.Examples
 
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
-        public float speed;
+        float speed;
 
         public int track = 0;
         public int select = 0;
         float distanceTravelled;
 
+        bool conercheck = false;
+        bool reversecheck = false;
 
         //list.sorting
         void Awake()
@@ -31,6 +33,8 @@ namespace PathCreation.Examples
             }
 
             speed = GetComponent<speedControl>().speed; //스피드 함수에서 받아옴
+            //speed = PM_System.instance.Speed;
+            //speed = 0.3f;
         }
 
         void Start()
@@ -55,51 +59,53 @@ namespace PathCreation.Examples
             }
 
 
-            //if() //콤보시스템 동작중이지 않을 때 || 코너일때
-            //{
-            //    SpeedCheck();  //코너일 때를 아는 방법은 뭘까
-            //}
+            if (conercheck == true)  // 코너일때, 콤보시스템 동작중이지 않을 때
+            {
+                SpeedCheck();
+            }
 
 
             // 라인변경(일자도로)
             // 어떻게 하면 부드러운 회전을 할 수 있을까?
-            if (Input.GetKeyDown(KeyCode.RightArrow)) // 오른쪽 라인으로 이동
+            if (conercheck == false)  // 직선일 때만 라인변경가능
             {
-                list[track][0].transform.position =
-                    Vector3.Slerp(list[track][0].transform.position, list[track][1].transform.position, 0.1f);
-                // https://hyunity3d.tistory.com/429 보간을 한번 사용해보면...?
-
-           
-                // Rotate 해봤는데 베지어 라인 따라 갈때 회전도 고정이여서 순간적으로 한번 돌고 계속 앞에봄
-                // 위에있는 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction)을 건들여야되겠다
-                //// 
-                //transform.rotation =
-                //    pathcreator.path.getrotationatdistance(distancetravelled,
-                //    (list[track])[1].getcomponent<endofpathinstruction>().endofpathinstruction);
-                select = 1;
+                if (Input.GetKeyDown(KeyCode.RightArrow)) // 오른쪽 라인으로 이동
+                {
+                    //list[track][0].transform.position =
+                    //    Vector3.Slerp(list[track][0].transform.position, list[track][1].transform.position, 0.1f);
+                    // https://hyunity3d.tistory.com/429 보간을 한번 사용해보면...?
 
 
-                //플레이어가 콜라이더에 충돌한 순간, 현재 path의 마지막 빨간 원의 위치와 다음 path의 첫번째 빨간 원의 위치를 받아와서 잇는 방법
-                //rotate적용
-                //이동할때 시간 길게 주기 (= 플레이어 속도 느리게 하기?)
-                //근데 이어주고 로테이트 적용하면 결국 배지어 아님?
+                    // Rotate 해봤는데 베지어 라인 따라 갈때 회전도 고정이여서 순간적으로 한번 돌고 계속 앞에봄
+                    // 위에있는 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction)을 건들여야되겠다
+                    //// 
+                    //transform.rotation =
+                    //    pathcreator.path.getrotationatdistance(distancetravelled,
+                    //    (list[track])[1].getcomponent<endofpathinstruction>().endofpathinstruction);
 
-                //방법1 -> 그렇다고 라인 이을 순 없으니깐 그냥 저렇게 한다.
+                    if (reversecheck == false)
+                        select = 1;
+                    else
+                        select = 0;  //리벌스 한 상태이면 반대
 
+                    //플레이어가 콜라이더에 충돌한 순간, 현재 path의 마지막 빨간 원의 위치와 다음 path의 첫번째 빨간 원의 위치를 받아와서 잇는 방법
+                    //rotate적용
+                    //이동할때 시간 길게 주기 (= 플레이어 속도 느리게 하기?)
+                    //근데 이어주고 로테이트 적용하면 결국 배지어 아님?
+
+                    //방법1 -> 그렇다고 라인 이을 순 없으니깐 그냥 저렇게 한다.
+
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftArrow)) // 왼쪽 라인으로 이동
+                {
+                    if (reversecheck == false)
+                        select = 0;
+                    else
+                        select = 1;  //리벌스 한 상태이면 반대
+                }
             }
-
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) // 왼쪽 라인으로 이동
-            {
-                select = 0;
-            }
-           
-            //if ()  //같은라인 앞에 다른플레이어가 존재 할 때
-            //{
-            //      //앞의 플레이어를 지나칠 수 없다
-                    //콜라이더로?
-            //}
-
-
+     
         }
 
         void OnPathChanged()
@@ -115,8 +121,9 @@ namespace PathCreation.Examples
                 Debug.Log("Right");
                 distanceTravelled = 0;
                 SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
-                              // 그럼 Update에 넣어야하나
                 track++;
+                conercheck = true;
+                reversecheck = false;
 
             }
 
@@ -137,11 +144,13 @@ namespace PathCreation.Examples
 
                 //(일단 방법3 해놓음)
 
+                conercheck = true;
+                reversecheck = false;
             }
 
-            if (other.gameObject.tag == "Exit")   // 코너를 통과하면 가까운 라인으로 이동
+            if (other.gameObject.tag == "RightExit")   // 코너를 통과하면 가까운 라인으로 이동
             {
-                Debug.Log("Exit");
+                Debug.Log("RightExit");
                 distanceTravelled = 0;
                 track++;
 
@@ -154,12 +163,42 @@ namespace PathCreation.Examples
                 {
                     //가속 중이라면 아웃라인
                     //감속 중이라면 인라인
+                    select = 1;  // 아웃라인
                 }
                 else if (select > 2)
                 {
                     select = 1;  // 아웃라인
                 }
 
+                conercheck = false;
+                reversecheck = false;
+
+            }
+
+            if (other.gameObject.tag == "LeftExit")
+            {
+                Debug.Log("LeftExit");
+                distanceTravelled = 0;
+                track++;
+
+                //하이라키 창에 직선도로 순서 바꿈
+                if (select < 2)   // 트랙 0, 1, 2, 3, 4 중
+                {
+                    select = 0;   // 인라인
+                }
+                else if (select == 2)
+                {
+                    //가속 중이라면 아웃라인
+                    //감속 중이라면 인라인
+                    select = 1;  // 아웃라인
+                }
+                else if (select > 2)
+                {
+                    select = 1;  // 아웃라인
+                }
+
+                conercheck = false;
+                reversecheck = true;
             }
         }
 
@@ -172,15 +211,19 @@ namespace PathCreation.Examples
             if (other.gameObject.tag == "OtherPlayer")
             {
                 Debug.Log("슬립스트림");
-                //현재체력이 지속회복량에 따라 지속회복
 
+                PM_System.instance.Hp += PM_System.instance.HpRecovery;  //현재체력이 지속회복량에 따라 지속회복
+                //회복할 수 있는 양 한계(최대체력) 설정하기
 
-                if(pathCreator == other.GetComponent<PathFollower>().pathCreator) //경로방해
+                if (pathCreator == other.GetComponent<PathFollower>().pathCreator) //경로차단. 뒤로 플레이어 1.5명 정도의 범위
                 {
-                    //슬립스트립위치이며 같은 라인일때 속도 똑같아지도록 설정하려고함
+                    //슬립스트림 위치이며 같은 라인일때 속도 똑같아지도록 설정하려고함
                     //다른 플레이어의 pathCreator을 어떻게 불러오면 좋을까??
                     //지금 해놓은 방법은 null로 뜸
                     Debug.Log("같은 도로");
+
+                    //speed = other.speed;
+                    //다른 플레이어 속도도 못가져오는데 왜지?
                 }
             }
         }

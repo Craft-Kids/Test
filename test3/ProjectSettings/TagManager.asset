@@ -4,10 +4,11 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Exit
   - RightEnter
   - LeftEnter
   - OtherPlayer
+  - LeftExit
+  - RightExit
   layers:
   - Default
   - TransparentFX
