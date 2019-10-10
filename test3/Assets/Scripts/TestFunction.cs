@@ -7,7 +7,7 @@ namespace PathCreation.Examples
 {
     public class TestFunction : MonoBehaviour
     {
-        float MinSpeed = 1f;//최소속도이자 기본주행속도
+        float MinSpeed = 1.0f;//최소속도이자 기본주행속도
         float MediSpeed = 1.4f;//속도70
 
         public GameObject player;

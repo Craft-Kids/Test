@@ -13,7 +13,7 @@ namespace PathCreation.Examples
 
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
-        float speed;
+        public float speed;
 
         public int track = 0;
         public int select = 0;
@@ -31,22 +31,17 @@ namespace PathCreation.Examples
             {
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
-
-
-            //speed = PM_System.instance.Speed;
-            //speed = 0.3f;
         }
 
         void Start()
         {
-            speed = 1;
+            speed = 1.1f;
             // Subscribed to the pathUpdated event so that we're notified if the path changes during the game
             pathCreator.pathUpdated += OnPathChanged;
         }
 
         void Update()
         {
-
             if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
 
@@ -100,7 +95,7 @@ namespace PathCreation.Examples
         {
             if (other.gameObject.tag == "RightEnter")  // 오른쪽으로 코너 진입
             {
-                Debug.Log("Right");
+                //Debug.Log("Right");
                 distanceTravelled = 0;
                 SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
                 track++;
@@ -111,7 +106,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "LeftEnter")  // 왼쪽으로 코너 진입
             {
-                Debug.Log("Left");
+                //Debug.Log("Left");
                 distanceTravelled = 0;
                 SpeedCheck();
                 track++;
@@ -122,7 +117,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "RightExit")   // 코너를 통과하면 가까운 라인으로 이동
             {
-                Debug.Log("RightExit");
+                //Debug.Log("RightExit");
                 distanceTravelled = 0;
                 track++;
 
@@ -149,7 +144,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "LeftExit")
             {
-                Debug.Log("LeftExit");
+                //Debug.Log("LeftExit");
                 distanceTravelled = 0;
                 track++;
 

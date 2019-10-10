@@ -19,7 +19,7 @@ namespace PathCreation.Examples
         void Update()
         {
             PM_System.instance.Speed = speed;
-           // Debug.Log(PM_System.instance.Speed); // <3> 여기는 증가하는데,,. -> PathFollwer의 49번째 줄로 가보시오
+            //Debug.Log(PM_System.instance.Speed); // <3> 여기는 증가하는데,,. -> PathFollwer의 49번째 줄로 가보시오
         }
 
         public void OnSpeedUp()  //가속 중

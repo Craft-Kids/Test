@@ -11,6 +11,7 @@ namespace PathCreation.Examples
     {
         public List<PathCreator[]> list = new List<PathCreator[]>();
 
+        public GameObject otherplayer;
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
         float speed;
@@ -31,10 +32,6 @@ namespace PathCreation.Examples
             {
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
-
-            
-            //speed = PM_System.instance.Speed;
-            //speed = 0.3f;
         }
 
         void Start()
@@ -46,7 +43,7 @@ namespace PathCreation.Examples
         void Update()
         {
             speed = PM_System.instance.Speed;
-            Debug.Log(PM_System.instance.Speed); // 우째서 1?
+            //Debug.Log(PM_System.instance.Speed); // 우째서 1?
             if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
 
@@ -107,6 +104,8 @@ namespace PathCreation.Examples
                         select = 1;  //리벌스 한 상태이면 반대
                 }
             }
+
+            BlockRoute();
      
         }
 
@@ -120,7 +119,7 @@ namespace PathCreation.Examples
         {
             if (other.gameObject.tag == "RightEnter")  // 오른쪽으로 코너 진입
             {
-                Debug.Log("Right");
+                //Debug.Log("Right");
                 distanceTravelled = 0;
                 SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
                 track++;
@@ -131,7 +130,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "LeftEnter")  // 왼쪽으로 코너 진입
             {
-                Debug.Log("Left");
+                //Debug.Log("Left");
                 distanceTravelled = 0;
                 SpeedCheck();
                 track++;
@@ -152,7 +151,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "RightExit")   // 코너를 통과하면 가까운 라인으로 이동
             {
-                Debug.Log("RightExit");
+                //Debug.Log("RightExit");
                 distanceTravelled = 0;
                 track++;
 
@@ -179,7 +178,7 @@ namespace PathCreation.Examples
 
             if (other.gameObject.tag == "LeftExit")
             {
-                Debug.Log("LeftExit");
+                //Debug.Log("LeftExit");
                 distanceTravelled = 0;
                 track++;
 
@@ -208,7 +207,7 @@ namespace PathCreation.Examples
         {
             if (other.gameObject.tag == "Slipstream")
             {
-                Debug.Log("슬립스트림");
+                //Debug.Log("슬립스트림");
 
                 PM_System.instance.Hp += PM_System.instance.HpRecovery;  //현재체력이 지속회복량에 따라 지속회복
 
@@ -217,21 +216,43 @@ namespace PathCreation.Examples
 
                 //회복할 수 있는 양 한계(최대체력) 설정하기
 
-
-
-                if (pathCreator == other.GetComponent<PathFollower>().pathCreator) //경로차단. 뒤로 플레이어 1.5명 정도의 범위
-                {
-                    //슬립스트림 위치이며 같은 라인일때 속도 똑같아지도록 설정하려고함
-                    //다른 플레이어의 pathCreator을 어떻게 불러오면 좋을까??
-                    //지금 해놓은 방법은 null로 뜸
-                    Debug.Log("같은 도로");
-
-                    //speed = other.speed;
-                    //다른 플레이어 속도도 못가져오는데 왜지?
-                }
             }
         }
 
+        void BlockRoute()  //경로차단
+        {
+            //같은 라인 체크
+            //다른 플레이어 와의 거리 계산
+            //플레이어에 가까워질수록 속도 감속
+
+            if (pathCreator == otherplayer.GetComponent<OtherPathFollower>().pathCreator) //같은 라인이면
+            {
+                Vector3 playerpos = this.transform.position;
+                Vector3 otherpos = otherplayer.transform.position;
+
+                float dis = Vector3.Distance(playerpos, otherpos);  //player와 other사이의 거리
+                //Debug.Log("dis = " + dis);
+
+                if (dis < 13f)  //일정 간격 이하이면 otherplayer의 속도만큼 감속
+                {
+                    if (speed >= otherplayer.GetComponent<OtherPathFollower>().speed)
+                    {
+                        GetComponent<speedControl>().OnSpeedDown();
+                        Debug.Log("경로차단. 감속 중");
+
+                        //가까이 가면 스피드가 1.0으로 감속됨 (속도가 올라간 상태이지만 가속버튼은 안누른 상태)
+                        //문제: 가속버튼은 누르면 작동되서 갈수있는 만큼 가고 멈추면 그때 속도감속됨.
+                       
+                    
+                        //콜라이더로 막으면 오류 오짐.이유는 모름
+
+                        //playerpos = new Vector3(transform.position.x + dis, transform.position.y + dis, transform.position.z + dis);
+
+                    }
+                }
+
+            }
+        }
 
         void SpeedCheck()  // 속도에 따라 라인 변경(오른쪽 코너 기준)
         {
