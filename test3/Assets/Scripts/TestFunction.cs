@@ -150,7 +150,7 @@ namespace PathCreation.Examples
 
         public void BasicDrive()//기본주행체크(항시)
         {
-            if (PM_System.instance.Speed == MinSpeed)//최소속도인가? ( 최소속도 = 기본주행속도)
+            if (PM_System.instance.Speed <= MinSpeed)//최소속도인가? ( 최소속도 = 기본주행속도)
             {
                 HpCure(0); //지속체력회복 함수 호출(한계체력까지만)
             }
@@ -160,7 +160,8 @@ namespace PathCreation.Examples
             }
             else //체력이 없음
             {
-                //player.GetComponent<speedControl>().OnSpeedDown(); // 최소속도로 감속
+                if(PM_System.instance.Speed > 1)
+                    player.GetComponent<speedControl>().OnSpeedDown(); // 최소속도로 감속
                                                                     
             }
         }
