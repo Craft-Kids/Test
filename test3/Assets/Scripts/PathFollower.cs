@@ -46,6 +46,7 @@ namespace PathCreation.Examples
         void Update()
         {
             speed = PM_System.instance.Speed;
+            Debug.Log(PM_System.instance.Speed); // 우째서 1?
             if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
 
@@ -205,16 +206,18 @@ namespace PathCreation.Examples
 
         private void OnTriggerStay(Collider other)  //플레이어 반경에 다른 플레이어가 들어오면 슬립스트림 효과 발생
         {
-            //방법1 삼각형 콜라이더 만들기. 마야로 삼각형 만들어서 메쉬콜라이더 맹들기
-            //방법2 코드로 삼각형 모양 반경 설정
-
-            // -> box 콜라이더로 해둠
-            if (other.gameObject.tag == "OtherPlayer")
+            if (other.gameObject.tag == "Slipstream")
             {
                 Debug.Log("슬립스트림");
 
                 PM_System.instance.Hp += PM_System.instance.HpRecovery;  //현재체력이 지속회복량에 따라 지속회복
+
+                //슬립스트림 완료
+
+
                 //회복할 수 있는 양 한계(최대체력) 설정하기
+
+
 
                 if (pathCreator == other.GetComponent<PathFollower>().pathCreator) //경로차단. 뒤로 플레이어 1.5명 정도의 범위
                 {

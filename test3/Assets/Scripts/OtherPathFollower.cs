@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데 왜 이거는 다음 라인으로 안갈까요옹????? 알수없음
+namespace PathCreation.Examples
 {
     // Moves along a path at constant speed.
     // Depending on the end of path instruction, will either loop, reverse, or stop at the end of the path.
@@ -20,6 +20,7 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
         float distanceTravelled;
 
         bool conercheck = false;
+        bool reversecheck = false;
 
         //list.sorting
         void Awake()
@@ -31,22 +32,26 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
 
-            //speed = GetComponent<speedControl>().speed;
 
+            //speed = PM_System.instance.Speed;
+            //speed = 0.3f;
         }
 
         void Start()
         {
+            speed = 1;
             // Subscribed to the pathUpdated event so that we're notified if the path changes during the game
             pathCreator.pathUpdated += OnPathChanged;
         }
 
         void Update()
         {
+
             if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
 
             pathCreator = list[track][select];
+
 
             if (pathCreator != null)
             {
@@ -62,16 +67,24 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
             }
 
 
+            // 라인변경(일자도로)
+            // 어떻게 하면 부드러운 회전을 할 수 있을까?
             if (conercheck == false)  // 직선일 때만 라인변경가능
             {
                 if (Input.GetKeyDown(KeyCode.D)) // 오른쪽 라인으로 이동
                 {
-                    select = 1;
+                    if (reversecheck == false)
+                        select = 1;
+                    else
+                        select = 0;  //리벌스 한 상태이면 반대
                 }
 
                 if (Input.GetKeyDown(KeyCode.A)) // 왼쪽 라인으로 이동
                 {
-                    select = 0;
+                    if (reversecheck == false)
+                        select = 0;
+                    else
+                        select = 1;  //리벌스 한 상태이면 반대
                 }
             }
 
@@ -92,6 +105,7 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
                 track++;
                 conercheck = true;
+                reversecheck = false;
 
             }
 
@@ -101,13 +115,14 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 distanceTravelled = 0;
                 SpeedCheck();
                 track++;
-                conercheck = true;
 
+                conercheck = true;
+                reversecheck = false;
             }
 
-            if (other.gameObject.tag == "Exit")   // 코너를 통과하면 가까운 라인으로 이동
+            if (other.gameObject.tag == "RightExit")   // 코너를 통과하면 가까운 라인으로 이동
             {
-                Debug.Log("Exit");
+                Debug.Log("RightExit");
                 distanceTravelled = 0;
                 track++;
 
@@ -121,7 +136,6 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                     //가속 중이라면 아웃라인
                     //감속 중이라면 인라인
                     select = 1;  // 아웃라인
-
                 }
                 else if (select > 2)
                 {
@@ -129,10 +143,36 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 }
 
                 conercheck = false;
+                reversecheck = false;
 
             }
-        }
 
+            if (other.gameObject.tag == "LeftExit")
+            {
+                Debug.Log("LeftExit");
+                distanceTravelled = 0;
+                track++;
+
+                //하이라키 창에 직선도로 순서 바꿈
+                if (select < 2)   // 트랙 0, 1, 2, 3, 4 중
+                {
+                    select = 0;   // 인라인
+                }
+                else if (select == 2)
+                {
+                    //가속 중이라면 아웃라인
+                    //감속 중이라면 인라인
+                    select = 1;  // 아웃라인
+                }
+                else if (select > 2)
+                {
+                    select = 1;  // 아웃라인
+                }
+
+                conercheck = false;
+                reversecheck = true;
+            }
+        }
 
         void SpeedCheck()  // 속도에 따라 라인 변경(오른쪽 코너 기준)
         {

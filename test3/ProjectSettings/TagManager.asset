@@ -9,6 +9,7 @@ TagManager:
   - OtherPlayer
   - LeftExit
   - RightExit
+  - Slipstream
   layers:
   - Default
   - TransparentFX
