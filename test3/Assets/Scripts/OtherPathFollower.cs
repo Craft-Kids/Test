@@ -31,7 +31,7 @@ namespace PathCreation.Examples //아니 플레이어랑 같은 코드 썼는데
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
 
-            speed = GetComponent<speedControl>().speed;
+            //speed = GetComponent<speedControl>().speed;
 
         }
 

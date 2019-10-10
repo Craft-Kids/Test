@@ -32,7 +32,7 @@ namespace PathCreation.Examples
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
 
-            speed = GetComponent<speedControl>().speed; //스피드 함수에서 받아옴
+            
             //speed = PM_System.instance.Speed;
             //speed = 0.3f;
         }
@@ -45,6 +45,7 @@ namespace PathCreation.Examples
 
         void Update()
         {
+            speed = PM_System.instance.Speed;
             if (track >= 10)  //10번째부터는 처음부터
                 track = 0;
 

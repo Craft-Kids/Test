@@ -433,7 +433,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1098736444}
+      - m_Target: {fileID: 0}
         m_MethodName: printValue
         m_Mode: 1
         m_Arguments:
@@ -4289,10 +4289,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1098736443}
   - component: {fileID: 1098736442}
-  - component: {fileID: 1098736444}
-  - component: {fileID: 1098736445}
   - component: {fileID: 1098736447}
   - component: {fileID: 1098736446}
+  - component: {fileID: 1098736445}
+  - component: {fileID: 1098736444}
   m_Layer: 0
   m_Name: UImanager
   m_TagString: Untagged
@@ -4312,6 +4312,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7cc2fb170c064e49936914802067ea0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AcelBtn: {fileID: 0}
+  DecelBtn: {fileID: 0}
+  Option: {fileID: 0}
 --- !u!4 &1098736443
 Transform:
   m_ObjectHideFlags: 0
@@ -4347,7 +4350,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1098736441}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 593b265a2dc48b6479bf45a0d7293bbd, type: 3}
+  m_Script: {fileID: 11500000, guid: 1870649291fb7944084f680129139a53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Acceleration: 0
@@ -4355,6 +4358,7 @@ MonoBehaviour:
   Maxspeed: 0
   Speed: 0
   CornerSpeed: 0
+  Mp: 0
   MpDecrease: 0
   MpRecovery: 0
   Hp: 0
