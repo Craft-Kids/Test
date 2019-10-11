@@ -36,7 +36,7 @@ public class PM_Player : MonoBehaviour
         Combo
     };
 
-    public float MaxHp = 120f; //최대체력
+    public float MaxHp; //최대체력
     public float CornerAbil;   //코너링능력
     public float AcelAbil;     //가속능력
     public float DcelAbil;     //감속능력

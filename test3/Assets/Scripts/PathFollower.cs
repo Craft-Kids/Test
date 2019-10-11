@@ -23,9 +23,12 @@ namespace PathCreation.Examples
         bool conercheck = false;
         bool reversecheck = false;
 
+        TestFunction GameManager;//TestFunction의 함수들(체회,체력감소,등등등다있음걍쓰면됨) -재은
+
         //list.sorting
         void Awake()
         {
+            GameManager = GameObject.Find("UImanager").GetComponent<TestFunction>(); //-재은
             Transform player = GameObject.Find("Path").transform;
 
             for (int i = 0; i < player.childCount; i++)
@@ -207,15 +210,9 @@ namespace PathCreation.Examples
         {
             if (other.gameObject.tag == "Slipstream")
             {
-                //Debug.Log("슬립스트림");
-
-                PM_System.instance.Hp += PM_System.instance.HpRecovery;  //현재체력이 지속회복량에 따라 지속회복
-
+                //Debug.Log("슬립스트림");//이거 왜 범위안에없는데도 계속 함수호출돼서 피가 계속회복됨 ㅜㅜ -재은
+                //GameManager.HpCure(2);//현재체력이 지속회복량에 따라 지속회복, 회복할 수 있는 양 한계(최대체력) 설정 -재은
                 //슬립스트림 완료
-
-
-                //회복할 수 있는 양 한계(최대체력) 설정하기
-
             }
         }
 

@@ -42,7 +42,7 @@ public class PM_System : MonoBehaviour
 
     [Header("[체력]")]
     public float Hp;           //현재체력
-    public float MinHp;        //한계체력
+    public float HpLimit;        //한계체력 ,최대체력의 85퍼센트
     public float Hp_mValue;    //체력감소량
     public float Hp_pValue;    //체력증가량
     /// <summary>
