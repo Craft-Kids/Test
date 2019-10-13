@@ -13,14 +13,16 @@ namespace PathCreation.Examples
         public GameObject DecelBtn;
         public GameObject Option;
         TestFunction GameManager;//TestFunction의 함수들
+        public Camera BackView;
+        public Camera SideView;
+
         bool isAccelBtnDown = false;//버튼의상태
         bool isDecelBtnDown = false;
 
         public void Awake()
         {
             GameManager = GameObject.Find("UImanager").GetComponent<TestFunction>();
-            //AcelBtn = GetComponent<Button>();
-            
+            BackView.enabled = false;         
         }
         public void Update()
         {
@@ -93,6 +95,20 @@ namespace PathCreation.Examples
         public void InGame_Btn()//게임시작
         {
             SceneManager.LoadScene("UI_Scene");
+        }
+
+        public void ViewChange()//시점전환
+        {
+            if(SideView.enabled)
+            {
+                BackView.enabled = true;
+                SideView.enabled = false;
+            }
+            else
+            {
+                BackView.enabled = false;
+                SideView.enabled = true;
+            }
         }
 
         void Touch()//터치감지

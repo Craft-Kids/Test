@@ -22,8 +22,9 @@ namespace PathCreation.Examples
 
         bool conercheck = false;
         bool reversecheck = false;
+        public bool discheck = false;
 
-        TestFunction GameManager;//TestFunction의 함수들(체회,체력감소,등등등다있음걍쓰면됨) -재은
+        TestFunction GameManager; //TestFunction의 함수들(체회,체력감소,등등등다있음걍쓰면됨) -재은
 
         //list.sorting
         void Awake()
@@ -124,7 +125,7 @@ namespace PathCreation.Examples
             {
                 //Debug.Log("Right");
                 distanceTravelled = 0;
-                SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
+                //SpeedCheck(); // 코너 주행중에도 속도 감속 가속 가능, 라인이 바뀔 수 있음
                 track++;
                 conercheck = true;
                 reversecheck = false;
@@ -135,8 +136,9 @@ namespace PathCreation.Examples
             {
                 //Debug.Log("Left");
                 distanceTravelled = 0;
-                SpeedCheck();
+                //SpeedCheck();
                 track++;
+
                 //Array.Reverse(list[track]);  //왼쪽일때 배열 뒤집기 --> select이동은 어떻게?
                 //--> track안에 요소(select)가 뒤집어진거 아녀?
 
@@ -176,7 +178,6 @@ namespace PathCreation.Examples
 
                 conercheck = false;
                 reversecheck = false;
-
             }
 
             if (other.gameObject.tag == "LeftExit")
@@ -210,8 +211,8 @@ namespace PathCreation.Examples
         {
             if (other.gameObject.tag == "Slipstream")
             {
-                //Debug.Log("슬립스트림");//이거 왜 범위안에없는데도 계속 함수호출돼서 피가 계속회복됨 ㅜㅜ -재은
-                //GameManager.HpCure(2);//현재체력이 지속회복량에 따라 지속회복, 회복할 수 있는 양 한계(최대체력) 설정 -재은
+                Debug.Log("슬립스트림"); //이거 왜 범위안에없는데도 계속 함수호출돼서 피가 계속회복됨 ㅜㅜ -재은 (수정완료-수진)
+                GameManager.HpCure(2); //현재체력이 지속회복량에 따라 지속회복, 회복할 수 있는 양 한계(최대체력) 설정 -재은
                 //슬립스트림 완료
             }
         }
@@ -230,8 +231,11 @@ namespace PathCreation.Examples
                 float dis = Vector3.Distance(playerpos, otherpos);  //player와 other사이의 거리
                 //Debug.Log("dis = " + dis);
 
-                if (dis < 13f)  //일정 간격 이하이면 otherplayer의 속도만큼 감속
+                if (dis < 15f)  //일정 간격 이하이면 otherplayer의 속도만큼 감속
                 {
+                    discheck = true;
+                    //가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
+
                     if (speed >= otherplayer.GetComponent<OtherPathFollower>().speed)
                     {
                         GetComponent<speedControl>().OnSpeedDown();
@@ -239,13 +243,16 @@ namespace PathCreation.Examples
 
                         //가까이 가면 스피드가 1.0으로 감속됨 (속도가 올라간 상태이지만 가속버튼은 안누른 상태)
                         //문제: 가속버튼은 누르면 작동되서 갈수있는 만큼 가고 멈추면 그때 속도감속됨.
-                       
-                    
+                        //해결: 가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
+
                         //콜라이더로 막으면 오류 오짐.이유는 모름
 
                         //playerpos = new Vector3(transform.position.x + dis, transform.position.y + dis, transform.position.z + dis);
-
                     }
+                }
+                else
+                {
+                    discheck = false;
                 }
 
             }
