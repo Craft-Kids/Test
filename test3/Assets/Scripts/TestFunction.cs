@@ -150,7 +150,7 @@ namespace PathCreation.Examples
         {
             if (PM_System.instance.Mp > 0)//활력이 남았나?
             {
-                if (player.GetComponent<PathFollower>().discheck == false)//앞사람과 거리가 충분한가? (경로차단에서는 이 함수가 호출안되게 수정-수진)
+                if ( player.GetComponent<PathFollower>().discheck == false)//앞사람과 거리가 충분한가? (경로차단에서는 이 함수가 호출안되게 수정-수진)
                 {
                     //Debug.Log("가속중,,");
                     player.GetComponent<speedControl>().OnSpeedUp();  //가속함수 호출

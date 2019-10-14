@@ -5,10 +5,9 @@ using System;
 
 namespace PathCreation.Examples
 {
-    // Moves along a path at constant speed.
-    // Depending on the end of path instruction, will either loop, reverse, or stop at the end of the path.
     public class PathFollower : MonoBehaviour
     {
+        #region Parameter
         public List<PathCreator[]> list = new List<PathCreator[]>();
 
         public GameObject otherplayer;
@@ -25,8 +24,9 @@ namespace PathCreation.Examples
         public bool discheck = false;
 
         TestFunction GameManager; //TestFunction의 함수들(체회,체력감소,등등등다있음걍쓰면됨) -재은
+        #endregion
 
-        //list.sorting
+        #region MainScript
         void Awake()
         {
             GameManager = GameObject.Find("UImanager").GetComponent<TestFunction>(); //-재은
@@ -36,11 +36,7 @@ namespace PathCreation.Examples
             {
                 list.Add(player.GetChild(i).GetComponentsInChildren<PathCreator>());
             }
-        }
 
-        void Start()
-        {
-            // Subscribed to the pathUpdated event so that we're notified if the path changes during the game
             pathCreator.pathUpdated += OnPathChanged;
         }
 
@@ -110,15 +106,71 @@ namespace PathCreation.Examples
             }
 
             BlockRoute();
-     
         }
+        #endregion
 
+        #region EditScript
         void OnPathChanged()
         {
             distanceTravelled = pathCreator.path.GetClosestDistanceAlongPath(transform.position);
         }
 
+        void BlockRoute()  //경로차단
+        {
+            //같은 라인 체크
+            //다른 플레이어 와의 거리 계산
+            //플레이어에 가까워질수록 속도 감속
 
+            if (pathCreator == otherplayer.GetComponent<OtherPathFollower>().pathCreator) //같은 라인이면
+            {
+                Vector3 playerpos = this.transform.position;
+                Vector3 otherpos = otherplayer.transform.position;
+
+                float dis = Vector3.Distance(playerpos, otherpos);  //player와 other사이의 거리
+                //Debug.Log("dis = " + dis);
+
+                if (dis < 15f)  //일정 간격 이하이면 otherplayer의 속도만큼 감속
+                {
+                    discheck = true;
+                    //가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
+
+                    if (speed >= otherplayer.GetComponent<OtherPathFollower>().speed)
+                    {
+                        GetComponent<speedControl>().OnSpeedDown();
+                        Debug.Log("경로차단. 감속 중");
+
+                        //가까이 가면 스피드가 1.0으로 감속됨 (속도가 올라간 상태이지만 가속버튼은 안누른 상태)
+                        //문제: 가속버튼은 누르면 작동되서 갈수있는 만큼 가고 멈추면 그때 속도감속됨.
+                        //해결: 가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
+
+                        //콜라이더로 막으면 오류 오짐.이유는 모름
+
+                        //playerpos = new Vector3(transform.position.x + dis, transform.position.y + dis, transform.position.z + dis);
+                    }
+                }
+            }
+            else
+            {
+                discheck = false;
+            }
+        }
+
+        void SpeedCheck()  // 속도에 따라 라인 변경(오른쪽 코너 기준)
+        {
+            if (speed < 1.2f)    // 속도가 1.0보다 느리면 -> 최소 속도가 1이여서 바꿈
+                select = 4;    // 오른쪽(인라인)
+            else if (speed < 1.7f)
+                select = 3;
+            else if (speed < 2.2f)
+                select = 2;
+            else if (speed < 2.7f)
+                select = 1;
+            else if (speed < 3.0f)
+                select = 0;
+        }
+        #endregion
+
+        #region UnityScript
         private void OnTriggerEnter(Collider other)
         {
             if (other.gameObject.tag == "RightEnter")  // 오른쪽으로 코너 진입
@@ -216,61 +268,6 @@ namespace PathCreation.Examples
                 //슬립스트림 완료
             }
         }
-
-        void BlockRoute()  //경로차단
-        {
-            //같은 라인 체크
-            //다른 플레이어 와의 거리 계산
-            //플레이어에 가까워질수록 속도 감속
-
-            if (pathCreator == otherplayer.GetComponent<OtherPathFollower>().pathCreator) //같은 라인이면
-            {
-                Vector3 playerpos = this.transform.position;
-                Vector3 otherpos = otherplayer.transform.position;
-
-                float dis = Vector3.Distance(playerpos, otherpos);  //player와 other사이의 거리
-                //Debug.Log("dis = " + dis);
-
-                if (dis < 15f)  //일정 간격 이하이면 otherplayer의 속도만큼 감속
-                {
-                    discheck = true;
-                    //가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
-
-                    if (speed >= otherplayer.GetComponent<OtherPathFollower>().speed)
-                    {
-                        GetComponent<speedControl>().OnSpeedDown();
-                        Debug.Log("경로차단. 감속 중");
-
-                        //가까이 가면 스피드가 1.0으로 감속됨 (속도가 올라간 상태이지만 가속버튼은 안누른 상태)
-                        //문제: 가속버튼은 누르면 작동되서 갈수있는 만큼 가고 멈추면 그때 속도감속됨.
-                        //해결: 가속버튼은 눌리지만 앞으로 안가고 체력은 닳는 함수 만들기
-
-                        //콜라이더로 막으면 오류 오짐.이유는 모름
-
-                        //playerpos = new Vector3(transform.position.x + dis, transform.position.y + dis, transform.position.z + dis);
-                    }
-                }
-                else
-                {
-                    discheck = false;
-                }
-
-            }
-        }
-
-        void SpeedCheck()  // 속도에 따라 라인 변경(오른쪽 코너 기준)
-        {
-            if (speed < 1.0f)    // 속도가 1.0보다 느리면
-                select = 4;    // 오른쪽(인라인)
-            else if (speed < 1.5f)
-                select = 3;
-            else if (speed < 2.0f)
-                select = 2;
-            else if (speed < 2.5f)
-                select = 1;
-            else if (speed < 3.0f)
-                select = 0;
-        }
-
+        #endregion
     }
 }
