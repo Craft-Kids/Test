@@ -57,13 +57,24 @@ namespace PathCreation.Examples
                 transform.rotation = pathCreator.path.GetRotationAtDistance(distanceTravelled, endOfPathInstruction);
             }
 
-
             if (conercheck == true)  // 코너일때, 콤보시스템 동작중이지 않을 때
             {
                 SpeedCheck();
             }
 
+            Linechange(); // 라인변경
+            BlockRoute(); // 경로차단
+        }
+        #endregion
 
+        #region EditScript
+        void OnPathChanged()
+        {
+            distanceTravelled = pathCreator.path.GetClosestDistanceAlongPath(transform.position);
+        }
+
+        void Linechange() //라인변경
+        {
             // 라인변경(일자도로)
             // 어떻게 하면 부드러운 회전을 할 수 있을까?
             if (conercheck == false)  // 직선일 때만 라인변경가능
@@ -104,15 +115,6 @@ namespace PathCreation.Examples
                         select = 1;  //리벌스 한 상태이면 반대
                 }
             }
-
-            BlockRoute();
-        }
-        #endregion
-
-        #region EditScript
-        void OnPathChanged()
-        {
-            distanceTravelled = pathCreator.path.GetClosestDistanceAlongPath(transform.position);
         }
 
         void BlockRoute()  //경로차단
